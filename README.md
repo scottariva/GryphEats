@@ -1,5 +1,4 @@
 # CIS 4250 - Gryph Eats Mobile Food Delivery App
-# Dom Bianchi
-# Matthew Bebis
-# Scott Riva
-# Shuaib Solker
+
+Gryph Eats is a mobile Food delivery APP designed for iOS for University of Guelhp Restaurants. This app was designed and developed by  Domenic Bianchi, Matthew Bebis, Scott Riva and Shuaib Solker as a part of the CIS 4250 Software Design V Course.
+
