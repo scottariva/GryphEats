@@ -1,0 +1,33 @@
+query RestaurantMenus {
+    restaurants {
+        ...RestaurantDetails
+    }
+}
+
+fragment FoodItemDetails on Food {
+    id: foodid
+    name: displayname
+    price
+    inStock: isavailable
+    ingredients: toppings {
+        id: toppingid
+        name: displayname
+    }
+}
+
+fragment RestaurantDetails on Restaurant {
+    id: restaurantid
+    name: displayname
+    isActive: isactive
+    openingTime: openingtime
+    closingTime: closingtime
+    menu {
+        isActive: isactive
+        menuItems {
+            item {
+                imageUrl: imageurl
+                ...FoodItemDetails
+            }
+        }
+    }
+}

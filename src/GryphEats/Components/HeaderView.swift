@@ -22,7 +22,7 @@ struct HeaderView: View {
     // MARK: Internal
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: UIDevice.current.isPad ? .center : .leading) {
             Text(title)
                 .font(.largeTitle)
                 .bold()
@@ -40,6 +40,6 @@ struct HeaderView: View {
 
 struct HeaderView_Previews: PreviewProvider {
     static var previews: some View {
-        HeaderView(title: "Title", subtitle: "Subtitle")
+        HeaderView(title: "Title", subtitle: "A really really long subtitle that never ends and keeps going")
     }
 }

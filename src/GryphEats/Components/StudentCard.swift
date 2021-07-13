@@ -14,8 +14,10 @@ struct StudentCard: View {
     
     // MARK: Lifecycle
     
-    init(customer: Customer) {
-        self.customer = customer
+    init(name: String, studentNumber: String, balance: Double) {
+        self.name = name
+        self.studentNumber = studentNumber
+        self.balance = balance
     }
     
     // MARK: Internal
@@ -26,7 +28,7 @@ struct StudentCard: View {
                 .fill(LinearGradient(
                     gradient: Gradient(
                         stops: [
-                            Gradient.Stop(color: .guelphRed, location: 0.5),
+                            Gradient.Stop(color: .guelphRed(for: .light), location: 0.5),
                             Gradient.Stop(color: Color(red: 158/255, green: 15/255, blue: 39/255), location: 0.5)
                     ]),
                     startPoint: .topLeading,
@@ -34,52 +36,43 @@ struct StudentCard: View {
                 .cornerRadius(10)
                 .padding()
             VStack {
-                HStack {
-                    GeometryReader { geometry in
+                GeometryReader { proxy in
+                    HStack {
                         Image("UofGLogo")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: geometry.size.width)
+                            .frame(width: proxy.size.width / 2)
                     }
                     Spacer()
                 }
-                Spacer()
-            }.padding(.leading, 30)
+            }.padding([.leading, .top], 30)
             VStack(alignment: .trailing) {
                 Spacer()
                 Group {
-                    Text("$" + String(format: "%.2f", customer.mealPlan?.currentBalance ?? 0))
+                    Text("$" + String(format: "%.2f", balance))
                         .font(.largeTitle).bold()
                         .multilineTextAlignment(.trailing)
                         .padding(.trailing, 30)
-                    Text(customer.name + studentNumber)
+                    Text(name + "\n" + studentNumber)
                         .multilineTextAlignment(.trailing)
-                        .lineLimit(2)
                         .padding([.trailing, .bottom], 30)
                 }.foregroundColor(.white)
             }
-        }.frame(maxWidth: 400, maxHeight: 250)
-            .aspectRatio(400/250, contentMode: .fit) //TODO: This is probably hacky
+        }.frame(maxWidth: 400)
+            .frame(idealHeight: 260)
+            .aspectRatio(400/260, contentMode: .fit)
     }
     
     // MARK: Private
     
-    private let customer: Customer
+    private let name: String
+    private let studentNumber: String
+    private let balance: Double
     
-    private var studentNumber: String {
-        guard let studentNumber = customer.mealPlan?.accountNumber else {
-            return ""
-        }
-        
-        return "\n\(studentNumber)"
-    }
 }
 
 struct StudentCard_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            StudentCard(customer: Customer(name: "Domenic Bianchi", mealPlan: MealPlan(currentBalance: 5000, accountNumber: "0921557")))
-            StudentCard(customer: Customer(name: "Domenic Bianchi"))
-        }
+        StudentCard(name: "Domenic Bianchi", studentNumber: "0921557", balance: 5000)
     }
 }

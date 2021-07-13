@@ -1,0 +1,5 @@
+mutation UpdateOrder($orderID: ID!, $status: OrderStatus!, $restaurantID: ID!) {
+    updateOrder(orderid: $orderID, status: $status, restaurantid: $restaurantID) {
+        success
+    }
+}

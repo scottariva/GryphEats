@@ -1,0 +1,22 @@
+query OrdersByRest($restID: ID!) {
+  getOrdersByRestaurantID(restaurantid: $restID) {
+    orderid
+    ordertype
+    timeplaced
+    timecompleted
+    restaurantid
+    instructions
+    orderitems {
+        orderid
+        foodid
+        identifier
+            item {
+                ...FoodItemDetails
+                description
+            }
+            ingredientsWrapper: toppings {
+                ...Toppings
+            }
+        }
+    }
+}

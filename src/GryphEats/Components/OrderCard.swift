@@ -32,8 +32,11 @@ struct OrderCard: View {
     
     // MARK: Lifecycle
     
-    init(order: Order) {
+    init(order: Order, enableShadow: Bool = true, isCollapsable: Bool = true, fillSpace: Bool = false) {
         self.order = order
+        self.enableShadow = enableShadow
+        self.isCollapsable = isCollapsable
+        self.fillSpace = fillSpace
     }
     
     // MARK: Internal
@@ -52,7 +55,7 @@ struct OrderCard: View {
                     Image(systemName: "clock")
                         .padding(.leading, 20)
                         .foregroundColor(.gray)
-                    Text(order.time + " (4 minutes ago)")
+                    Text(order.timePlacedString(expanded: true))
                         .font(.subheadline)
                         .foregroundColor(.gray)
                         .padding(.trailing, 20)
@@ -64,19 +67,21 @@ struct OrderCard: View {
                         .font(.headline)
                         .padding(.horizontal, 20)
                         .padding(.bottom, 10)
-                    Spacer()
-                    Button(action: {
-                        withAnimation {
-                            self.visibility.toggle()
+                    Group() {
+                        Spacer()
+                        Button(action: {
+                            withAnimation {
+                                self.visibility.toggle()
+                            }
+                        }) {
+                            Image(systemName: "chevron.down")
+                                .rotationEffect(.degrees(visibility == .expanded ? 180 : 0))
+                                .foregroundColor(.gray)
+                                .padding()
                         }
-                    }) {
-                        Image(systemName: "chevron.down")
-                            .rotationEffect(.degrees(visibility == .expanded ? 180 : 0))
-                            .foregroundColor(.gray)
-                            .padding()
-                    }
+                    }.disabled(isCollapsable)
+                        .opacity(isCollapsable ? 1 : 0)
                 }
-                
                 if visibility == .expanded {
                     Text("List of food items")
                         .font(.system(size: 12))
@@ -84,22 +89,25 @@ struct OrderCard: View {
                         .padding(.bottom, 10)
                 }
             }.layoutPriority(1) //Why do we need this?
-        }.background(Color(red: 235/255, green: 235/255, blue: 235/255))
-            .cornerRadius(10)
-            .padding(.horizontal, 15)
-            .padding([.top, .bottom], 10)
-            .shadow(radius: 10)
+        }.background(fillSpace ? Color(red: 235/255, green: 235/255, blue: 235/255) : Color(red: 235/255, green: 235/255, blue: 235/255))
+            .cornerRadius(fillSpace ? 10 : 10)
+            .padding(.horizontal, fillSpace ? 0 : 15)
+            .padding([.top, .bottom], fillSpace ? 0 : 10)
+            .shadow(radius: enableShadow ? 10 : 0)
     }
     
     // MARK: Private
     
     @State private var visibility: Visibility = .collapsed
     
-    private var order: Order
+    @ObservedObject private var order: Order
+    private var enableShadow: Bool
+    private var isCollapsable: Bool
+    private var fillSpace: Bool
     
     private func orderStatusToColor() -> Color {
         switch order.status {
-        case .new:
+        case .new, .cancelled:
             return .red
         case .inProgress:
             return .yellow
@@ -111,18 +119,16 @@ struct OrderCard: View {
     }
 }
 
-#if DEBUG
 struct OrderCard_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             Spacer()
-            OrderCard(order: Order(customer: Customer(name: "Domenic Bianchi"), status: .new, time: "12:00pm"))
-            OrderCard(order: Order(customer: Customer(name: "Scott Riva"), status: .inProgress, time: "12:00pm"))
-            OrderCard(order: Order(customer: Customer(name: "Matthew Bebis"), status: .readyForPickup, time: "12:00pm"))
-            OrderCard(order: Order(customer: Customer(name: "Shu"), status: .pickedUp, time: "12:00pm"))
+            OrderCard(order: Order(id: "0", restaurantID: "1", customer: Customer(name: "Domenic Bianchi"), status: .neworder, timePlaced: "12:00pm", paymentType: .credit))
+            OrderCard(order: Order(id: "1", restaurantID: "1", customer: Customer(name: "Scott Riva"), status: .inprogress, timePlaced: "12:00pm", paymentType: .credit))
+            OrderCard(order: Order(id: "2", restaurantID: "1", customer: Customer(name: "Matthew Bebis"), status: .ready, timePlaced: "12:00pm", paymentType: .credit))
+            OrderCard(order: Order(id: "3", restaurantID: "1", customer: Customer(name: "Shu"), status: .pickedup, timePlaced: "12:00pm", paymentType: .credit))
             Spacer()
         }.background(Color(red: 250/255, green: 250/255, blue: 250/255))
             .edgesIgnoringSafeArea(.all)
     }
 }
-#endif

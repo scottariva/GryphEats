@@ -13,9 +13,9 @@ import SwiftUI
 struct RegisterView: View {
     
     // MARK: Internal
-
+    
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: UIDevice.current.isPad ? .center : .leading) {
             BackButton {
                 withAnimation {
                     self.state.reset()
@@ -28,24 +28,23 @@ struct RegisterView: View {
             Group {
                 Group {
                     CustomTextField(
-                        header: Text("Full Name".uppercased()),
-                        placeholder: Text("Please enter your first and last name"),
+                        header: "Full Name",
+                        placeholder: "Please enter your first and last name",
                         text: self.$state.name)
                     
                     CustomTextField(
-                        header: Text("Email".uppercased()),
-                        placeholder: Text("Please enter your email"),
+                        header: "Email",
+                        placeholder: "Please enter your email",
                         text: self.$state.email)
-                }.keyboardType(.emailAddress)
-                    .padding(.bottom, 20)
+                        .keyboardType(.emailAddress)
+                }.padding(.bottom, 20)
                 
                 CustomTextField(
-                    header: Text("Password".uppercased()),
-                    placeholder: Text("Please enter a password"),
+                    header: "Password".uppercased(),
+                    subtitle: "Password must contain at least 6 characters",
+                    placeholder: "Please enter a password",
                     text: self.$state.password,
                     isSecure: true)
-                
-                Text("Password must contain at least 6 characters").font(.caption)
             }.foregroundColor(.white)
                 .padding(.horizontal, 40)
             
@@ -76,16 +75,15 @@ struct RegisterView: View {
     
     // MARK: Private
     
-    @State private var error: RegistrationState.RegistrationError? = nil
+    @State private var error: LandingState.LandingError? = nil
+    @EnvironmentObject private var state: LandingState
     
-    @EnvironmentObject private var state: RegistrationState
-
 }
 
 struct RegisterView_Previews: PreviewProvider {
     static var previews: some View {
         RegisterView()
-            .environmentObject(RegistrationState())
+            .environmentObject(LandingState())
             .background(Color.gray)
     }
 }

@@ -1,0 +1,28 @@
+query UserOrders($userID: ID!) {
+    getOrdersByUserID(userid: $userID) {
+        id: orderid
+        restaurantName: restaurantname
+        restaurantId: restaurantid
+        timePlaced: timeplaced
+        estimatedTimeRemaining: estimatedtime
+        status: ordertype
+        paymentType: paymenttype
+        instructions
+        items: orderitems {
+            item {
+                imageUrl: imageurl
+                ...FoodItemDetails
+            }
+            ingredientsWrapper: toppings {
+                ...Toppings
+            }
+        }
+    }
+}
+
+fragment Toppings on Topping {
+    ingredient: statictopping {
+        id: toppingid
+        name: displayname
+    }
+}

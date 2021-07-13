@@ -8,66 +8,86 @@
 
 import SwiftUI
 
+// MARK: - LoginView
+
 struct LoginView: View {
+    
+    // MARK: Internal
+    
     var body: some View {
-        HStack {
-            VStack {
-                Image("AppLogo")
-                    .resizable()
-                    .frame(width: 150, height: 150)
-                    .cornerRadius(20)
+        VStack {
+            Image("AppLogo")
+                .resizable()
+                .frame(width: 150, height: 150)
+                .cornerRadius(20)
+                .padding(.bottom, 20)
+            
+            Group {
+                CustomTextField(
+                    header: "Email".uppercased(),
+                    placeholder: "Please enter your email",
+                    text: self.$email)
                     .padding(.bottom, 20)
+                    .keyboardType(.emailAddress)
                 
-                Group {
-                    CustomTextField(
-                        header: Text("Email".uppercased()),
-                        placeholder: Text("Please enter your email"),
-                        text: self.$email)
-                        .padding(.bottom, 20)
-                    
-                    CustomTextField(
-                        header: Text("Password".uppercased()),
-                        placeholder: Text("Please enter your password"),
-                        text: self.$password,
-                        isSecure: true)
-                        .padding(.bottom, 40)
-                }.foregroundColor(.white)
-                    .padding(.horizontal, 40)
+                CustomTextField(
+                    header: "Password".uppercased(),
+                    placeholder: "Please enter your password",
+                    text: self.$password,
+                    isSecure: true)
+                    .padding(.bottom, 40)
+            }.foregroundColor(.white)
+                .padding(.horizontal, 40)
+            
+            HStack {
+                Spacer()
+                CircularButton(
+                    text: Text("Sign In"),
+                    backgroundColor: .white,
+                    foregroundColor: .black) {
+                        self.attemptLogin()
+                }.padding(.trailing, 25)
                 
-                HStack {
-                    Spacer()
-                    CircularButton(
-                        text: Text("Sign In"),
-                        backgroundColor: .white,
-                        foregroundColor: .black) {
-                            self.attemptLogin()
-                    }.padding(.trailing, 25)
-                    
-                    CircularButton(
-                        text: Text("Register"),
-                        backgroundColor: .clear,
-                        foregroundColor: .white,
-                        borderColor: .white) {
-                            withAnimation {
-                                self.state.state = .info
-                            }
-                    }
-                    Spacer()
+                CircularButton(
+                    text: Text("Register"),
+                    backgroundColor: .clear,
+                    foregroundColor: .white,
+                    borderColor: .white) {
+                        withAnimation {
+                            self.state.state = .info
+                        }
                 }
                 Spacer()
-                Button(action: {
-                    print("Forgot password pressed")
-                }) {
-                    Text("Forgot Password")
-                        .foregroundColor(.white)
-                        .font(.system(size: 14))
-                        .padding()
+            }
+            Spacer()
+            Button(action: {
+                withAnimation {
+                    self.state.state = .forgotPassword
                 }
+            }) {
+                Text("Forgot Password")
+                    .foregroundColor(.white)
+                    .font(.system(size: 14))
+                    .padding()
             }
         }.errorAlert(error: self.$error.wrappedValue) {
             // If we do not "unset" the error, and assign an error that is the exact same type of the
             //old value, SwiftUI will not present the alert. Possible SwiftUI Bug?
             self.error = nil
+        }.onAppear {
+            if self.viewModel.canAutoLoginUser {
+                self.viewModel.attemptAutoLogin { result in
+                    switch result {
+                    case .success(let user):
+                        self.presentPostLoginScreen(for: user)
+                    case .failure(let error):
+                        self.error = error
+                    }
+                }
+            }
+            
+            self.email = ""
+            self.password = ""
         }
     }
     
@@ -77,32 +97,41 @@ struct LoginView: View {
     @State private var password = ""
     @State private var error: LoginViewModel.LoginError? = nil
     
-    @EnvironmentObject private var state: RegistrationState
+    @EnvironmentObject private var state: LandingState
     @Environment(\.viewController) private var viewControllerHolder
     
     private let viewModel = LoginViewModel()
     
-    private var viewController: UIViewController? {
-        self.viewControllerHolder.value
-    }
-    
     private func attemptLogin() {
-        switch viewModel.attemptLogin() {
-        case .success:
-            self.viewController?.present(style: .fullScreen) {
-                HomeView()
+        viewModel.attemptLogin(username: email, password: password) { result in
+            switch result {
+            case .success(let user):
+                self.presentPostLoginScreen(for: user)
+            case .failure(let error):
+                self.error = error
             }
-        case .failure(let error):
-            self.error = error
         }
     }
     
+    private func presentPostLoginScreen(for user: User) {
+        if user.userType == .customer && UIApplication.shared.isRegisteredForRemoteNotifications {
+            loggedInUserID = user.id
+        }
+        
+        self.viewControllerHolder.value?.present(style: .fullScreen) {
+            if user.userType == .restaurant {
+                RestTabBarView().environmentObject(user)
+            } else {
+                MainTabView().environmentObject(user)
+            }
+        }
+    }
 }
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
-            .environmentObject(RegistrationState())
+            .environmentObject(LandingState())
             .background(Color.gray)
     }
 }

@@ -18,8 +18,8 @@ class CustomTextFieldTests: XCTestCase {
 
     func testTextFieldText() {
         let textField = CustomTextField(
-            header: Text("A header"),
-            placeholder: Text("A placeholder"),
+            header: "A header",
+            placeholder: "A placeholder",
             text: .constant("Some text"))
         
         assertSnapshot(matching: CustomUIHostingController(rootView: textField), as: .image, record: record)
@@ -27,8 +27,18 @@ class CustomTextFieldTests: XCTestCase {
     
     func testTextFieldPlaceholder() {
         let textField = CustomTextField(
-            header: Text("A header"),
-            placeholder: Text("A placeholder"),
+            header: "A header",
+            placeholder: "A placeholder",
+            text: .constant(""))
+        
+        assertSnapshot(matching: CustomUIHostingController(rootView: textField), as: .image, record: record)
+    }
+    
+    func testTextFieldWithSubtitle() {
+        let textField = CustomTextField(
+            header: "A header",
+            subtitle: "A subtitle",
+            placeholder: "A placeholder",
             text: .constant(""))
         
         assertSnapshot(matching: CustomUIHostingController(rootView: textField), as: .image, record: record)
@@ -36,8 +46,8 @@ class CustomTextFieldTests: XCTestCase {
     
     func testSecureTextFieldText() {
         let textField = CustomTextField(
-            header: Text("A header"),
-            placeholder: Text("A placeholder"),
+            header: "A header",
+            placeholder: "A placeholder",
             text: .constant("apassword"),
             isSecure: true)
         

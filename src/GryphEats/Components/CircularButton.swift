@@ -36,13 +36,9 @@ struct CircularButton: View {
         Group {
             //Doesn't look like SwiftUI supports if-let statements yet
             if borderColor != nil {
-                button
-                    .overlay(
-                        RoundedRectangle(cornerRadius: .infinity)
-                            .stroke(borderColor!, lineWidth: 2))
+                button.overlay(RoundedRectangle(cornerRadius: .infinity).stroke(borderColor!, lineWidth: 2))
             } else {
-                button
-                    .cornerRadius(.infinity)
+                button.cornerRadius(.infinity)
             }
         }
     }
@@ -51,7 +47,7 @@ struct CircularButton: View {
     
     private let button: BasicButton
     private let borderColor: Color?
-
+    
 }
 
 struct CircularButton_Previews: PreviewProvider {

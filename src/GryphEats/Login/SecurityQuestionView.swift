@@ -11,8 +11,11 @@ import SwiftUI
 // MARK: - SecurityQuestionView
 
 struct SecurityQuestionView: View {
+    
+    // MARK: Internal
+    
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: UIDevice.current.isPad ? .center : .leading) {
             BackButton {
                 withAnimation {
                     self.state.state = .info
@@ -26,14 +29,14 @@ struct SecurityQuestionView: View {
             
             Group {
                 CustomTextField(
-                    header: Text("Question".uppercased()),
-                    placeholder: Text("Please enter a question"),
+                    header: "Question".uppercased(),
+                    placeholder: "Please enter a question",
                     text: self.$state.question)
                     .padding(.bottom, 20)
                 
                 CustomTextField(
-                    header: Text("Answer".uppercased()),
-                    placeholder: Text("Please enter the answer to the question"),
+                    header: "Answer".uppercased(),
+                    placeholder: "Please enter the answer to the question",
                     text: self.$state.answer)
             }.foregroundColor(.white)
                 .padding(.horizontal, 40)
@@ -46,33 +49,62 @@ struct SecurityQuestionView: View {
                     text: Text("Register"),
                     backgroundColor: .white,
                     foregroundColor: .black) {
-                        if let error = self.state.validateSecurityQuestion() {
-                            self.error = error
+                        if self.state.validateSecurityQuestion() != nil {
+                            self.error = .accountCreationError
                         } else {
-                            withAnimation {
-                                self.state.reset()
+                            //TODO: Update registration to include two input fields rather than one for name input.
+                            let firstName = String(self.state.name.split(separator: " ").first ?? "")
+                            let lastName = String(self.state.name.split(separator: " ").last ?? "")
+                            
+                            self.viewModel.createAccount(
+                                firstName: firstName,
+                                lastName: lastName,
+                                email: self.state.email,
+                                password: self.state.password,
+                                question: self.state.question,
+                                answer: self.state.answer)
+                            { result in
+                                switch result {
+                                case .success:
+                                    self.showConfirmationAlert = true
+                                case .failure(let error):
+                                    self.error = error
+                                }
                             }
                         }
-                    }.shadow(radius: 5).padding()
+                }.shadow(radius: 5).padding()
                 Spacer()
             }
         }.errorAlert(error: self.$error.wrappedValue) {
             // If we do not "unset" the error, and assign an error that is the exact same type of the
             //old value, SwiftUI will not present the alert. Possible SwiftUI Bug?
             self.error = nil
+        }.alert(isPresented: $showConfirmationAlert) {
+            Alert(
+                title: Text("Welcome to GryphEats!"),
+                message: Text("You can now login to your account!"),
+                dismissButton: .default(Text("OK")) {
+                    withAnimation {
+                        self.state.reset()
+                    }
+                })
         }
     }
     
     // MARK: Private
     
-    @State private var error: RegistrationState.RegistrationError? = nil
+    @State private var showConfirmationAlert = false
+    @State private var error: CreateAccountViewModel.CreateAccountError? = nil
+    @EnvironmentObject private var state: LandingState
     
-    @EnvironmentObject private var state: RegistrationState
-
+    private let viewModel = CreateAccountViewModel()
+    
 }
 
 struct SecurityQuestionView_Previews: PreviewProvider {
     static var previews: some View {
-        SecurityQuestionView().environmentObject(RegistrationState())
+        SecurityQuestionView()
+            .environmentObject(LandingState())
+            .background(Color.gray)
     }
 }

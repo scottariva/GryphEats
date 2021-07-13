@@ -1,0 +1,24 @@
+subscription OrderUpdated($restaurantID: ID!) {
+    orderUpdated(restaurantid: $restaurantID) {
+        orderid
+        ordertype
+        timeplaced
+        restaurantid
+        instructions
+        orderitems {
+            orderid
+            foodid
+            identifier
+            item {
+                ...FoodItemDetails
+                description
+            }
+            ingredientsWrapper: toppings {
+                ingredient: statictopping {
+                    id: toppingid
+                    name: displayname
+                }
+            }
+        }
+    }
+}

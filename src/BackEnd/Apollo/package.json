@@ -1,0 +1,27 @@
+{
+  "name": "apollo",
+  "version": "1.0.0",
+  "description": "API for Gryph Eats",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/index.js --delay 4.0",
+    "ns": "node src/index.js",
+    "find": "netstat -napt | grep 4040",
+    "findnode": "netstat -napt | grep node",
+    "allnode": "ps -ef | grep node"
+  },
+  "author": "SubwaySquad2",
+  "license": "ISC",
+  "dependencies": {
+    "@parse/node-apn": "^3.1.0",
+    "apollo-datasource": "^0.6.3",
+    "apollo-server": "^2.9.6",
+    "bcrypt": "^3.0.0",
+    "dotenv": "^8.1.0",
+    "graphql": "^14.5.8",
+    "mysql2": "^1.7.0",
+    "nodemon": "^1.19.4",
+    "sequelize": "^5.19.6"
+  }
+}
